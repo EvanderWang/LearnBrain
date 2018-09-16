@@ -1,0 +1,9 @@
+.git/**
+.vs/**
+*.js
+*.map
+!LearnBrain/AmdLoader/r.js
+!LearnBrain/AmdLoader/require.js
+LearnBrain/bin/**
+LearnBrain/obj/**
+!LearnBrain/Third/**
