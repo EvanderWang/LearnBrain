@@ -1,9 +1,10 @@
-﻿declare var React: any;
+﻿//declare var React: any;
 declare var ReactDOM: any;
 declare var TheGraph: any;
 
 import { data } from "./VData"
-import RaisedButton from 'material-ui/RaisedButton';
+import * as React from "react";
+import { Button } from "@blueprintjs/core";
 
 module graph {
     export class VSIcon {
@@ -66,7 +67,7 @@ module graph {
                         icon: "trash-o",
                         iconLabel: "addNode",
                         action: (fbpGraph, itemKey, item) => {
-                            let tansStr = <string>document.getElementsByClassName("view")[0].attributes["transform"].value;
+                            let tansStr: string = document.getElementsByClassName("view")[0].attributes["transform"].value;
                             let re = /,|\(|\)/;
                             let trans = tansStr.split(re);
 
@@ -139,6 +140,12 @@ module graph {
 
             this.element = React.createElement(TheGraph.App, props);
             ReactDOM.render(this.element, graph);
+
+            //const button = React.createElement(Button, {
+            //    icon: "cloud",
+            //    text: "CDN Blueprint is go!",
+            //});
+            //ReactDOM.render(button, graph_area);
         }
 
         initLibrary() {

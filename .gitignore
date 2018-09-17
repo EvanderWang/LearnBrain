@@ -8,3 +8,5 @@ LearnBrain/bin/**
 LearnBrain/obj/**
 !LearnBrain/Third/**
 !LearnBrain/node_modules/**
+LearnBrain/node_modules/**
+LearnBrain/package-lock.json

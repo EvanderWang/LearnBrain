@@ -1,9 +1,15 @@
 ﻿requirejs.config({
     // baseUrl: basePath,
-    // paths: {
-    //     jquery: jqueryPath,
-    //     alioss: aliossPath,
-    // },
+    paths: {
+        "react": "../Third/react/react.development",
+        "react-dom": "../Third/react/react-dom.development",
+        "tslib": "../Third/tslib/tslib",
+        "classnames": "../Third/classnames/index",
+        "react-transition-group": "../Third/react-transition-group/react-transition-group.min",
+        "dom4": "../Third/dom4/dom4",
+        "@blueprintjs/icons": "../Third/@blueprintjs/icons.bundle",
+        "@blueprintjs/core": "../Third/@blueprintjs/core.bundle",
+    },
     // map: {
     //     '*': {
     //         'style': cssPath,
