@@ -7,3 +7,4 @@
 LearnBrain/bin/**
 LearnBrain/obj/**
 !LearnBrain/Third/**
+!LearnBrain/node_modules/**

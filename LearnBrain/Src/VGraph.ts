@@ -3,6 +3,7 @@ declare var ReactDOM: any;
 declare var TheGraph: any;
 
 import { data } from "./VData"
+import RaisedButton from 'material-ui/RaisedButton';
 
 module graph {
     export class VSIcon {
@@ -74,7 +75,7 @@ module graph {
                             let scale = Number(trans[4]);
 
                             let name = prompt("节点名称", "");
-                            fbpGraph.addNode(name, "basic node", { x: (fbpGraph.position.x - offsetx - TheGraph.config.nodeSize / 2) / scale, y: (fbpGraph.position.y - offsety - TheGraph.config.nodeSize / 2) / scale });
+                            fbpGraph.addNode(name, "basic node", { x: (fbpGraph.position.x - offsetx) / scale, y: (fbpGraph.position.y - offsety) / scale });
                         }
                     }
                 },

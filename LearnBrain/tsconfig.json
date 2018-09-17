@@ -1,12 +1,12 @@
 ﻿{
   "compilerOptions": {
     "strict": false,
-    "strictPropertyInitialization": false,
     "removeComments": false,
     "target": "es6",
     "module": "amd",
     "declaration": false,
     "sourceMap": true,
-    "rootDir": "./"
+    "rootDir": "./",
+    "moduleResolution": "node"
   }
 }
