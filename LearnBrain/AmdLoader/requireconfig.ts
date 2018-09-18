@@ -8,6 +8,7 @@
         "react-transition-group": "../Third/react-transition-group/react-transition-group.min",
         "dom4": "../Third/dom4/dom4",
         "prop-types": "../Third/prop-types/prop-types",
+        "csstype": "../Third/csstype/index.d",
         "@blueprintjs/icons": "../Third/@blueprintjs/icons.bundle",
         "@blueprintjs/core": "../Third/@blueprintjs/core.bundle",
     },

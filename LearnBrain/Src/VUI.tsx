@@ -1,17 +1,9 @@
-﻿// A '.tsx' file enables JSX support in the TypeScript compiler, 
-// for more information see the following page on the TypeScript wiki:
-// https://github.com/Microsoft/TypeScript/wiki/JSX
-
-import * as React from "react";
+﻿import * as React from "react";
 import { Button, Card, Elevation } from "@blueprintjs/core";
-import * as PropTypes from "prop-types";
 
 module ui {
-    export class VAddNodeBoard extends React.Component {
-        static propTypes = {
-            x: PropTypes.number.isRequired,
-            y: PropTypes.number.isRequired,
-        }
+    export class VAddNodeBoard extends React.Component<{ x: number, y: number, display: boolean, onAdd: () => void }> {
+        intervalID: number;
 
         constructor(props) {
             super(props);
@@ -25,17 +17,21 @@ module ui {
             // Clean up listener
         }
 
+        shouldComponentUpdate(nextProps: Readonly<{ x: number, y: number, display: boolean, onAdd: () => void }>, nextState: Readonly<{}>, nextContext: any): boolean {
+            return (nextProps.x != this.props.x) || (nextProps.y != this.props.y) || (nextProps.display != this.props.display);
+        }
+
         handleChange() {
             // Update component state whenever the data source changes
         }
 
-        onAddNode() {
-            console.log("add");
+        onAddNode = () => {
+            this.props.onAdd();
         }
 
         render() {
             return (
-                <div style={{ position: 'absolute', width: 400, height: 200, zIndex: 1 }}>
+                <div style={{ position: 'absolute', width: 400, height: 200, zIndex: 1, left: this.props.x, top: this.props.y, display: this.props.display ? 'inline' : 'none' }}>
                     <Card interactive={false} elevation={Elevation.FOUR}>
                         <h5><a href="#">Card heading</a></h5>
                         <p>Card content</p>

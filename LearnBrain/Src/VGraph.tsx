@@ -5,6 +5,7 @@ declare var TheGraph: any;
 import { data } from "./VData"
 import * as React from "react";
 import { ui } from "./VUI";
+import { fade } from "material-ui/utils/colorManipulator";
 
 module graph {
     export class VSIcon {
@@ -55,7 +56,11 @@ module graph {
 
     export class VGraph {
         element: any;
+        addnodeboard: any;
+        addnodeboardprops: any;
         library: any;
+
+        anbdisplay: boolean = false;
 
         constructor(private drawData: data.VData) {
             this.initLibrary();
@@ -67,16 +72,17 @@ module graph {
                         icon: "trash-o",
                         iconLabel: "addNode",
                         action: (fbpGraph, itemKey, item) => {
-                            let tansStr: string = document.getElementsByClassName("view")[0].attributes["transform"].value;
-                            let re = /,|\(|\)/;
-                            let trans = tansStr.split(re);
-
-                            let offsetx = Number(trans[5]);
-                            let offsety = Number(trans[6]);
-                            let scale = Number(trans[4]);
-
-                            let name = prompt("节点名称", "");
-                            fbpGraph.addNode(name, "basic node", { x: (fbpGraph.position.x - offsetx) / scale, y: (fbpGraph.position.y - offsety) / scale });
+                            this.anbdisplay = true;
+                            //let tansStr: string = document.getElementsByClassName("view")[0].attributes["transform"].value;
+                            //let re = /,|\(|\)/;
+                            //let trans = tansStr.split(re);
+                            //
+                            //let offsetx = Number(trans[5]);
+                            //let offsety = Number(trans[6]);
+                            //let scale = Number(trans[4]);
+                            //
+                            //let name = prompt("节点名称", "");
+                            //fbpGraph.addNode(name, "basic node", { x: (fbpGraph.position.x - offsetx) / scale, y: (fbpGraph.position.y - offsety) / scale });
                         }
                     }
                 },
@@ -141,7 +147,18 @@ module graph {
             this.element = React.createElement(TheGraph.App, props);
             ReactDOM.render(this.element, graph);
 
-            ReactDOM.render(<ui.VAddNodeBoard />, document.getElementById('menu'));
+            //this.addnodeboardprops = {
+            //    x: 10,
+            //    y: 10,
+            //    display: false,
+            //    onAdd: () => { this.addnodeboard.props.display = false; }
+            //}
+
+            //this.addnodeboard = React.createElement(ui.VAddNodeBoard, this.addnodeboardprops);
+
+            setInterval(() => {
+                ReactDOM.render(<ui.VAddNodeBoard x={10} y={10} display={this.anbdisplay} onAdd={() => { this.anbdisplay = false; }} />, document.getElementById('menu'));
+            }, 200);
         }
 
         initLibrary() {
