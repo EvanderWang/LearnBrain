@@ -4,7 +4,7 @@ declare var TheGraph: any;
 
 import { data } from "./VData"
 import * as React from "react";
-import { Button } from "@blueprintjs/core";
+import { ui } from "./VUI";
 
 module graph {
     export class VSIcon {
@@ -121,7 +121,7 @@ module graph {
 
             let graph_area = document.getElementById('graph_area');
 
-            
+
             var props = {
                 width: screen.width,
                 height: screen.height,
@@ -141,11 +141,7 @@ module graph {
             this.element = React.createElement(TheGraph.App, props);
             ReactDOM.render(this.element, graph);
 
-            //const button = React.createElement(Button, {
-            //    icon: "cloud",
-            //    text: "CDN Blueprint is go!",
-            //});
-            //ReactDOM.render(button, graph_area);
+            ReactDOM.render(<ui.VAddNodeBoard />, document.getElementById('menu'));
         }
 
         initLibrary() {

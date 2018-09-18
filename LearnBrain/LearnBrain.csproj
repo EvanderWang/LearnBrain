@@ -1462,6 +1462,7 @@
     <Content Include="Third\katex\katex.min.js" />
     <Content Include="Third\material-ui\material-ui.development.js" />
     <Content Include="Third\material-ui\material-ui.production.min.js" />
+    <Content Include="Third\prop-types\prop-types.js" />
     <Content Include="Third\quill-1.3.6\quill.bubble.css" />
     <Content Include="Third\quill-1.3.6\quill.core.css" />
     <Content Include="Third\quill-1.3.6\quill.core.js" />
@@ -1620,6 +1621,7 @@
     <TypeScriptCompile Include="AmdLoader\require.d.ts" />
     <TypeScriptCompile Include="AmdLoader\requireconfig.ts" />
     <TypeScriptCompile Include="Src\main.ts" />
+    <TypeScriptCompile Include="Src\VUI.tsx" />
     <TypeScriptCompile Include="Src\VData.ts" />
     <TypeScriptCompile Include="Src\VGraph.tsx" />
     <TypeScriptCompile Include="Src\VText.ts" />
