@@ -196,7 +196,7 @@ module graph {
 
                     // add link to graph (update if exists)
                     // NB: links are strictly source < target; arrows separately specified by booleans
-                    const isRight = mousedownNode.id < mouseupNode.id;
+                    const isRight = mousedownNode.guid < mouseupNode.guid;
                     const source = isRight ? mousedownNode : mouseupNode;
                     const target = isRight ? mouseupNode : mousedownNode;
 

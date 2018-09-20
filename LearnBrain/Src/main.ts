@@ -17,7 +17,7 @@ module module_main{
         //});
 
         // test use
-        //(<any>window).data = graphData;
+        (<any>window).data = graphData;
     }
 }
 

@@ -88,16 +88,12 @@ module data {
             this.links = new Array<VLink>();
 
             // init test
-            this.nodes.push(new VNode("有理数"));
-            this.nodes.push(new VNode("无理数"));
-            this.nodes.push(new VNode("有理数性质"));
-
-            this.links.push(new VLink(this.nodes[0], this.nodes[1], false, true));
-            this.links.push(new VLink(this.nodes[1], this.nodes[2], false, true));
-        }
-
-        change() {
-            this.nodes.push(new VNode("weidingyi"));
+            //this.nodes.push(new VNode("有理数"));
+            //this.nodes.push(new VNode("无理数"));
+            //this.nodes.push(new VNode("有理数性质"));
+            //
+            //this.links.push(new VLink(this.nodes[0], this.nodes[1], false, true));
+            //this.links.push(new VLink(this.nodes[1], this.nodes[2], false, true));
         }
     }
 }
