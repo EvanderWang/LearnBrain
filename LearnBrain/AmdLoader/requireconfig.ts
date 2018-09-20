@@ -9,6 +9,7 @@
         "dom4": "../Third/dom4/dom4",
         "prop-types": "../Third/prop-types/prop-types",
         "csstype": "../Third/csstype/index.d",
+        "d3": "../Third/d3/d3.v5.min",
         "@blueprintjs/icons": "../Third/@blueprintjs/icons.bundle",
         "@blueprintjs/core": "../Third/@blueprintjs/core.bundle",
     },

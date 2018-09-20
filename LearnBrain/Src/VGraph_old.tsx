@@ -4,8 +4,7 @@ declare var TheGraph: any;
 
 import { data } from "./VData"
 import * as React from "react";
-import { ui } from "./VUI";
-import { fade } from "material-ui/utils/colorManipulator";
+import { ui } from "./VUI_old";
 
 module graph {
     export class VSIcon {
@@ -56,15 +55,19 @@ module graph {
 
     export class VGraph {
         element: any;
-        addnodeboard: any;
-        addnodeboardprops: any;
         library: any;
 
         anbdisplay: boolean = false;
+        anbNodePos: [number, number];
+        anbNodeGraph: any;
 
         constructor(private drawData: data.VData) {
             this.initLibrary();
+            this.initGraph(drawData);
+            this.initUI();
+        }
 
+        private initGraph(drawData: data.VData) {
             var contextMenus = {
                 main: {
                     icon: "cog",
@@ -72,17 +75,9 @@ module graph {
                         icon: "trash-o",
                         iconLabel: "addNode",
                         action: (fbpGraph, itemKey, item) => {
+                            this.anbNodeGraph = fbpGraph;
+                            this.anbNodePos = this.calGraphPos([fbpGraph.position.x, fbpGraph.position.y]);
                             this.anbdisplay = true;
-                            //let tansStr: string = document.getElementsByClassName("view")[0].attributes["transform"].value;
-                            //let re = /,|\(|\)/;
-                            //let trans = tansStr.split(re);
-                            //
-                            //let offsetx = Number(trans[5]);
-                            //let offsety = Number(trans[6]);
-                            //let scale = Number(trans[4]);
-                            //
-                            //let name = prompt("节点名称", "");
-                            //fbpGraph.addNode(name, "basic node", { x: (fbpGraph.position.x - offsetx) / scale, y: (fbpGraph.position.y - offsety) / scale });
                         }
                     }
                 },
@@ -127,7 +122,6 @@ module graph {
 
             let graph_area = document.getElementById('graph_area');
 
-
             var props = {
                 width: screen.width,
                 height: screen.height,
@@ -146,22 +140,9 @@ module graph {
 
             this.element = React.createElement(TheGraph.App, props);
             ReactDOM.render(this.element, graph);
-
-            //this.addnodeboardprops = {
-            //    x: 10,
-            //    y: 10,
-            //    display: false,
-            //    onAdd: () => { this.addnodeboard.props.display = false; }
-            //}
-
-            //this.addnodeboard = React.createElement(ui.VAddNodeBoard, this.addnodeboardprops);
-
-            setInterval(() => {
-                ReactDOM.render(<ui.VAddNodeBoard x={10} y={10} display={this.anbdisplay} onAdd={() => { this.anbdisplay = false; }} />, document.getElementById('menu'));
-            }, 200);
         }
 
-        initLibrary() {
+        private initLibrary() {
             this.library = new Object();
             let baseLib = new VLibrary();
             baseLib.name = "basic node";
@@ -182,6 +163,26 @@ module graph {
 
         registLibrary(lib: VLibrary) {
             this.library[lib.name] = lib;
+        }
+
+        private initUI() {
+            setInterval(() => {
+                ReactDOM.render(<ui.VAddNodeBoard display={this.anbdisplay} onAdd={(inputNodeName: string) => {
+                    this.anbNodeGraph.addNode(inputNodeName, "basic node", { x: this.anbNodePos[0], y: this.anbNodePos[1] });
+                    this.anbdisplay = false;
+                }} />, document.getElementById('add_node_board'));
+            }, 200);
+        }
+
+        private calGraphPos(pixelpos: [number, number]): [number, number] {
+            let tansStr: string = document.getElementsByClassName("view")[0].attributes["transform"].value;
+            let re = /,|\(|\)/;
+            let trans = tansStr.split(re);
+            let offsetx = Number(trans[5]);
+            let offsety = Number(trans[6]);
+            let scale = Number(trans[4]);
+
+            return [(pixelpos[0] - offsetx) / scale, (pixelpos[1] - offsety) / scale];
         }
     }
 }

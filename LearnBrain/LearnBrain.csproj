@@ -64,6 +64,7 @@
     <Content Include="Third\%40blueprintjs\icons.bundle.js" />
     <Content Include="Third\%40blueprintjs\normalize.css" />
     <Content Include="Third\classnames\index.js" />
+    <Content Include="Third\d3\d3.v5.min.js" />
     <Content Include="Third\dom4\dom4.js" />
     <Content Include="Third\fontawesome-free-5.3.1-web\css\all.css" />
     <Content Include="Third\fontawesome-free-5.3.1-web\css\all.min.css" />
@@ -1621,9 +1622,10 @@
     <TypeScriptCompile Include="AmdLoader\require.d.ts" />
     <TypeScriptCompile Include="AmdLoader\requireconfig.ts" />
     <TypeScriptCompile Include="Src\main.ts" />
-    <TypeScriptCompile Include="Src\VUI.tsx" />
+    <TypeScriptCompile Include="Src\VGraph.ts" />
+    <TypeScriptCompile Include="Src\VUI_old.tsx" />
     <TypeScriptCompile Include="Src\VData.ts" />
-    <TypeScriptCompile Include="Src\VGraph.tsx" />
+    <TypeScriptCompile Include="Src\VGraph_old.tsx" />
     <TypeScriptCompile Include="Src\VText.ts" />
   </ItemGroup>
   <PropertyGroup>

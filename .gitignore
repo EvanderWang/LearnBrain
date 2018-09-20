@@ -10,3 +10,4 @@ LearnBrain/obj/**
 !LearnBrain/node_modules/**
 LearnBrain/node_modules/**
 LearnBrain/package-lock.json
+LearnBrain/Properties/**
