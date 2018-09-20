@@ -11,8 +11,13 @@ module module_main{
             textEditor.setDisplayNode(cur);
         });
 
+        //window.addEventListener('keypress', () => {
+        //    graphData.change();
+        //    graphEditor.restart();
+        //});
+
         // test use
-        (<any>window).data = graphData;
+        //(<any>window).data = graphData;
     }
 }
 

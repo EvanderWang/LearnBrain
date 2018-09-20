@@ -78,7 +78,7 @@ module text {
             });
 
             // test use
-            (<any>window).quill = this.quill;
+            //(<any>window).quill = this.quill;
         }
 
         setDisplayNode(node: data.VNode | null) {
