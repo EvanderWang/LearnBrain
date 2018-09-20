@@ -1623,9 +1623,7 @@
     <TypeScriptCompile Include="AmdLoader\requireconfig.ts" />
     <TypeScriptCompile Include="Src\main.ts" />
     <TypeScriptCompile Include="Src\VGraph.ts" />
-    <TypeScriptCompile Include="Src\VUI_old.tsx" />
     <TypeScriptCompile Include="Src\VData.ts" />
-    <TypeScriptCompile Include="Src\VGraph_old.tsx" />
     <TypeScriptCompile Include="Src\VText.ts" />
   </ItemGroup>
   <PropertyGroup>

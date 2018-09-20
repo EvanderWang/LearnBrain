@@ -116,7 +116,7 @@ svg {
 path.link {
   fill: none;
   stroke: #000;
-  stroke-width: 4px;
+  stroke-width: 3px;
   cursor: default;
 }
 
@@ -137,7 +137,7 @@ path.link.hidden {
 }
 
 circle.node {
-  stroke-width: 1.5px;
+  stroke-width: 2.5px;
   cursor: pointer;
 }
 

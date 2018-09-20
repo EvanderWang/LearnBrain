@@ -5,12 +5,14 @@ import { text } from "./VText";
 
 module module_main{
     export function main() {
-        //graph.VIconMngr.registIcon({ name: "brush", unicodeAscii: "\uf55d" });
-        //graph.VIconMngr.registIcon({ name: "book-open", unicodeAscii: "\uf518" });
-
         let graphData = new data.VData();
-        let graphEditor = new graph.VGraph();
         let textEditor = new text.VText();
+        let graphEditor = new graph.VGraph(graphData, (cur: data.VNode | null, last: data.VNode | null) => {
+            textEditor.setDisplayNode(cur);
+        });
+
+        // test use
+        (<any>window).data = graphData;
     }
 }
 

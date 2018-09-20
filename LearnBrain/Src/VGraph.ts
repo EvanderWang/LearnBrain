@@ -1,4 +1,5 @@
-﻿import * as d3 from "d3";
+﻿import { data } from "./VData";
+import * as d3 from "d3";
 
 module graph {
     export class VGraph {
@@ -17,8 +18,16 @@ module graph {
         markOffsetBaseX: number = 0;
         markOffsetBaseY: number = 0;
 
-        constructor() {
+        nodeRadius: number = 24;
+        nodeRadiusOverlay: number = 29;
+
+        constructor(initVal: data.VData, nodeSelectChange: (cur: data.VNode | null, last: data.VNode | null) => void) {
             let tick = () => {
+                if (selectedNode !== lastSelectedNode) {
+                    nodeSelectChange(selectedNode, lastSelectedNode);
+                    lastSelectedNode = selectedNode;
+                }
+                
                 // draw directed edges with proper padding from node centers
                 path.attr('d', (d: any) => {
                     const deltaX = d.target.x - d.source.x;
@@ -26,8 +35,8 @@ module graph {
                     const dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
                     const normX = deltaX / dist;
                     const normY = deltaY / dist;
-                    const sourcePadding = d.left ? 17 : 12;
-                    const targetPadding = d.right ? 17 : 12;
+                    const sourcePadding = d.left ? this.nodeRadiusOverlay : this.nodeRadius;
+                    const targetPadding = d.right ? this.nodeRadiusOverlay : this.nodeRadius;
                     const sourceX = d.source.x + (sourcePadding * normX);
                     const sourceY = d.source.y + (sourcePadding * normY);
                     const targetX = d.target.x - (targetPadding * normX);
@@ -40,12 +49,10 @@ module graph {
             }
 
             // set up SVG for D3
-            const colors = d3.scaleOrdinal(d3.schemeCategory10);
-
             this.parent = d3.select('#graph_area');
             this.selfDom = this.parent.append('svg').attr('oncontextmenu', 'return false;');
             this.forceLayout = d3.forceSimulation()
-                .force('link', d3.forceLink().id((d: any) => d.id).distance(150))
+                .force('link', d3.forceLink().id((d: data.VNode) => d.guid).distance(150))
                 .force('charge', d3.forceManyBody().strength(-500))
                 .on('tick', tick);
 
@@ -56,35 +63,8 @@ module graph {
             //  - nodes are known by 'id', not by index in array.
             //  - reflexive edges are indicated on the node (as a bold black circle).
             //  - links are always source < target; edge directions are set by 'left' and 'right'.
-            const nodes = [
-                { id: 0, reflexive: false },
-                { id: 1, reflexive: true },
-                { id: 2, reflexive: false }
-            ];
-            let lastNodeId = 2;
-            const links = [
-                { source: nodes[0], target: nodes[1], left: false, right: true },
-                { source: nodes[1], target: nodes[2], left: false, right: true }
-            ];
-
-            // init D3 drag support
-            const drag = d3.drag()
-                .on('start', (d: any) => {
-                    if (!d3.event.active) this.forceLayout.alphaTarget(0.3).restart();
-
-                    d.fx = d.x;
-                    d.fy = d.y;
-                })
-                .on('drag', (d: any) => {
-                    d.fx = d3.event.x;
-                    d.fy = d3.event.y;
-                })
-                .on('end', (d: any) => {
-                    if (!d3.event.active) this.forceLayout.alphaTarget(0);
-
-                    d.fx = null;
-                    d.fy = null;
-                });
+            const nodes = initVal.nodes;
+            const links = initVal.links;
 
             // define arrow markers for graph links
             this.selfDom.append('svg:defs').append('svg:marker')
@@ -119,6 +99,7 @@ module graph {
             let circle = this.selfDom.append('svg:g').selectAll('g');
 
             // mouse event vars
+            let lastSelectedNode = null;
             let selectedNode = null;
             let selectedLink = null;
             let mousedownLink = null;
@@ -137,9 +118,9 @@ module graph {
                 path = path.data(links);
 
                 // update existing links
-                path.classed('selected', (d: any) => d === selectedLink)
-                    .style('marker-start', (d: any) => d.left ? 'url(#start-arrow)' : '')
-                    .style('marker-end', (d: any) => d.right ? 'url(#end-arrow)' : '');
+                path.classed('selected', (d: data.VLink) => d === selectedLink)
+                    .style('marker-start', (d: data.VLink) => d.left ? 'url(#start-arrow)' : '')
+                    .style('marker-end', (d: data.VLink) => d.right ? 'url(#end-arrow)' : '');
 
                 // remove old links
                 path.exit().remove();
@@ -147,10 +128,10 @@ module graph {
                 // add new links
                 path = path.enter().append('svg:path')
                     .attr('class', 'link')
-                    .classed('selected', (d: any) => d === selectedLink)
-                    .style('marker-start', (d: any) => d.left ? 'url(#start-arrow)' : '')
-                    .style('marker-end', (d: any) => d.right ? 'url(#end-arrow)' : '')
-                    .on('mousedown', (d: any) => {
+                    .classed('selected', (d: data.VLink) => d === selectedLink)
+                    .style('marker-start', (d: data.VLink) => d.left ? 'url(#start-arrow)' : '')
+                    .style('marker-end', (d: data.VLink) => d.right ? 'url(#end-arrow)' : '')
+                    .on('mousedown', (d: data.VLink) => {
                         if (d3.event.ctrlKey) return;
 
                         // select link
@@ -163,36 +144,37 @@ module graph {
 
                 // circle (node) group
                 // NB: the function arg is crucial here! nodes are known by id, not by index!
-                circle = circle.data(nodes, (d: any) => d.id);
+                circle = circle.data(nodes, (d: data.VNode) => d.guid);
 
                 // update existing nodes (reflexive & selected visual states)
                 circle.selectAll('circle')
-                    .style('fill', (d: any) => (d === selectedNode) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id))
-                    .classed('reflexive', (d: any) => d.reflexive);
+                    .style('fill', (d: data.VNode) => (d === selectedNode) ? d3.rgb(d.color).brighter().toString() : d.color)
+                    .style('stroke', (d: data.VNode) => d3.rgb(d.color).darker().toString())
+
+                circle.selectAll('text')
+                    .text((d: data.VNode) => d.name)
 
                 // remove old nodes
                 circle.exit().remove();
 
                 // add new nodes
                 const g = circle.enter().append('svg:g');
-
                 g.append('svg:circle')
                     .attr('class', 'node')
-                    .attr('r', 12)
-                    .style('fill', (d: any) => (d === selectedNode) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id))
-                    .style('stroke', (d: any) => d3.rgb(colors(d.id)).darker().toString())
-                    .classed('reflexive', (d: any) => d.reflexive)
-                    .on('mouseover', function (d: any) {
+                    .attr('r', this.nodeRadius)
+                    .style('fill', (d: data.VNode) => (d === selectedNode) ? d3.rgb(d.color).brighter().toString() : d.color)
+                    .style('stroke', (d: data.VNode) => d3.rgb(d.color).darker().toString())
+                    .on('mouseover', function (d: data.VNode) {
                         if (!mousedownNode || d === mousedownNode) return;
                         // enlarge target node
                         d3.select(this).attr('transform', 'scale(1.1)');
                     })
-                    .on('mouseout', function (d: any) {
+                    .on('mouseout', function (d: data.VNode) {
                         if (!mousedownNode || d === mousedownNode) return;
                         // unenlarge target node
                         d3.select(this).attr('transform', '');
                     })
-                    .on('mousedown', (d: any) => {
+                    .on('mousedown', (d: data.VNode) => {
                         if (d3.event.ctrlKey) return;
 
                         // select node
@@ -213,7 +195,7 @@ module graph {
 
                         restart();
                     })
-                    .on('mouseup', function (d: any) {
+                    .on('mouseup', function (d: data.VNode) {
                         if (!mousedownNode) return;
 
                         // needed by FF
@@ -258,7 +240,7 @@ module graph {
                     .attr('x', 0)
                     .attr('y', 4)
                     .attr('class', 'id')
-                    .text((d: any) => d.id);
+                    .text((d: data.VNode) => d.name);
 
                 circle = g.merge(circle);
 
@@ -280,12 +262,19 @@ module graph {
                 // because :active only works in WebKit?
                 this.selfDom.classed('active', true);
 
-                if (d3.event.ctrlKey || mousedownNode || mousedownLink) return;
+                if (mousedownNode || mousedownLink) return;
 
-                // insert new node at point
-                //const point = d3.mouse(this.parent);
-                const node = { id: ++lastNodeId, reflexive: false, x: pos[0], y: pos[1] };
-                nodes.push(node);
+                if (d3.event.ctrlKey) {
+                    // insert new node at point
+                    const node = new data.VNode("未定义");
+                    (<any>node).x = pos[0];
+                    (<any>node).y = pos[1];
+                    node.listenNameChange(restart);
+                    nodes.push(node);
+                } else {
+                    selectedNode = null;
+                    selectedLink = null;
+                }
 
                 restart();
             }
@@ -335,24 +324,19 @@ module graph {
 
             // only respond once per keydown
             let lastKeyDown = -1;
-
+            
             let keydown = () => {
                 d3.event.preventDefault();
-
+            
                 if (lastKeyDown !== -1) return;
                 lastKeyDown = d3.event.keyCode;
-
-                // ctrl
-                if (d3.event.keyCode === 17) {
-                    circle.call(drag);
-                    this.selfDom.classed('ctrl', true);
-                }
-
+            
                 if (!selectedNode && !selectedLink) return;
-
+            
                 switch (d3.event.keyCode) {
-                    case 8: // backspace
+                    case 8:  // bacespace
                     case 46: // delete
+                    case 27: // escape
                         if (selectedNode) {
                             nodes.splice(nodes.indexOf(selectedNode), 1);
                             spliceLinksForNode(selectedNode);
@@ -363,55 +347,58 @@ module graph {
                         selectedNode = null;
                         restart();
                         break;
-                    case 66: // B
-                        if (selectedLink) {
-                            // set link direction to both left and right
-                            selectedLink.left = true;
-                            selectedLink.right = true;
-                        }
-                        restart();
-                        break;
-                    case 76: // L
-                        if (selectedLink) {
-                            // set link direction to left only
-                            selectedLink.left = true;
-                            selectedLink.right = false;
-                        }
-                        restart();
-                        break;
-                    case 82: // R
-                        if (selectedNode) {
-                            // toggle node reflexivity
-                            selectedNode.reflexive = !selectedNode.reflexive;
-                        } else if (selectedLink) {
-                            // set link direction to right only
-                            selectedLink.left = false;
-                            selectedLink.right = true;
-                        }
-                        restart();
-                        break;
                 }
             }
-
-            function keyup() {
+            
+            let keyup = () => {
                 lastKeyDown = -1;
-
-                // ctrl
-                if (d3.event.keyCode === 17) {
-                    circle.on('.drag', null);
-                    this.selfDom.classed('ctrl', false);
-                }
             }
 
             // app starts here
+            for (let i = 0; i < nodes.length; i++) {
+                nodes[i].listenNameChange(restart);
+            }
+
             this.selfDom.on('mousedown', function () { mousedown(d3.mouse(this)); })
                 .on('mousemove', function () { mousemove(d3.mouse(this)); })
                 .on('mouseup', mouseup);
-            //d3.select(window)
-            //    .on('keydown', keydown)
-            //    .on('keyup', keyup);
+            this.parent.attr('tabindex', 1).on('keydown', keydown).on('keyup', keyup);
             restart();
         }
+
+        //invertColor(hex: string, bw: boolean) {
+        //    if (hex.indexOf('#') === 0) {
+        //        hex = hex.slice(1);
+        //    }
+        //    // convert 3-digit hex to 6-digits.
+        //    if (hex.length === 3) {
+        //        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+        //    }
+        //    if (hex.length !== 6) {
+        //        throw new Error('Invalid HEX color.');
+        //    }
+        //    var r = parseInt(hex.slice(0, 2), 16),
+        //        g = parseInt(hex.slice(2, 4), 16),
+        //        b = parseInt(hex.slice(4, 6), 16);
+        //    if (bw) {
+        //        // http://stackoverflow.com/a/3943023/112731
+        //        return (r * 0.299 + g * 0.587 + b * 0.114) > 186
+        //            ? '#000000'
+        //            : '#FFFFFF';
+        //    }
+        //    // invert color components
+        //    let rstr = (255 - r).toString(16);
+        //    let gstr = (255 - g).toString(16);
+        //    let bstr = (255 - b).toString(16);
+        //    // pad each with zeros and return
+        //    return "#" + this.padZero(rstr, rstr.length) + this.padZero(gstr, gstr.length) + this.padZero(bstr, bstr.length);
+        //}
+
+        //padZero(str: string, len: number) {
+        //    len = len || 2;
+        //    var zeros = new Array(len).join('0');
+        //    return (zeros + str).slice(-len);
+        //}
 
         resize() {
             this.width = parseInt(this.parent.style("width"));
