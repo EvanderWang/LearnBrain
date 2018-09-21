@@ -2,6 +2,8 @@
 
 A Graph Note like my brain. Use for study or something else.
 
+Only a basic test on my chrome.
+
 # Thanks to
 
 text editor : 

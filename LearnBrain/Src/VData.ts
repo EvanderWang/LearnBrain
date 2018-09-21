@@ -128,6 +128,25 @@ module data {
             //this.links.push(new VLink(this.nodes[1], this.nodes[2], false, true));
         }
 
+        // 3 level
+        useRelationPainter(myNode: VNode, targetNode: VNode): string {
+            let baseColor = "#ffC300"
+            let darkerColor = d3.rgb(baseColor).darker().darker().toString();
+            let darkestColor = d3.rgb(baseColor).darker().darker().darker().darker().toString();
+            if (myNode === targetNode) {
+                return baseColor;
+            } else {
+                for (let i = 0; i < this.links.length; i++) {
+                    if (this.links[i].source === targetNode && this.links[i].target === myNode) {
+                        return darkerColor;
+                    } else if (this.links[i].source === myNode && this.links[i].target === targetNode) {
+                        return darkerColor;
+                    }
+                }
+                return darkestColor;
+            }
+        }
+
         Save(): string {
             let nodesStr = new Array<string>();
             for (let i = 0; i < this.nodes.length; i++) {

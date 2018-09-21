@@ -155,7 +155,14 @@ module graph {
 
                 // update existing nodes (reflexive & selected visual states)
                 circle.selectAll('circle')
-                    .style('fill', (d: data.VNode) => (d === this.selectedNode) ? d3.rgb(d.color).brighter().toString() : d.color)
+                    .style('fill', (d: data.VNode) => {
+                        if (this.selectedNode != null) {
+                            return realData.useRelationPainter(d, this.selectedNode);
+                        } else {
+                            return d.color;
+                        }
+                        //(d === this.selectedNode) ? d3.rgb(d.color).brighter().toString() : d.color)
+                    })
                     .style('stroke', (d: data.VNode) => d3.rgb(d.color).darker().toString())
 
                 circle.selectAll('text')
