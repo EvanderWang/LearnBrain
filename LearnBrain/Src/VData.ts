@@ -19,7 +19,7 @@ module data {
 
         changeName(name: string) {
             this.name = name;
-            this.color = baseColor(name);
+            //this.color = baseColor(name);
             if (this.listener) {
                 this.listener();
             }
@@ -131,8 +131,8 @@ module data {
         // 3 level
         useRelationPainter(myNode: VNode, targetNode: VNode): string {
             let baseColor = "#ffC300"
-            let darkerColor = d3.rgb(baseColor).darker().darker().toString();
-            let darkestColor = d3.rgb(baseColor).darker().darker().darker().darker().toString();
+            let darkerColor = d3.rgb(baseColor).darker().toString();
+            let darkestColor = d3.rgb(baseColor).darker().darker().darker().toString();
             if (myNode === targetNode) {
                 return baseColor;
             } else {
