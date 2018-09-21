@@ -59,10 +59,13 @@
   <ItemGroup>
     <Content Include="index.css" />
     <Content Include="Third\%40blueprintjs\blueprint-icons.css" />
+    <Content Include="Third\%40blueprintjs\blueprint-select.css" />
     <Content Include="Third\%40blueprintjs\blueprint.css" />
     <Content Include="Third\%40blueprintjs\core.bundle.js" />
+    <Content Include="Third\%40blueprintjs\docs-theme.bundle.js" />
     <Content Include="Third\%40blueprintjs\icons.bundle.js" />
     <Content Include="Third\%40blueprintjs\normalize.css" />
+    <Content Include="Third\%40blueprintjs\select.bundle.js" />
     <Content Include="Third\classnames\index.js" />
     <Content Include="Third\d3\d3.v5.min.js" />
     <Content Include="Third\dom4\dom4.js" />
@@ -1621,7 +1624,9 @@
   <ItemGroup>
     <TypeScriptCompile Include="AmdLoader\require.d.ts" />
     <TypeScriptCompile Include="AmdLoader\requireconfig.ts" />
+    <TypeScriptCompile Include="Src\nodes.tsx" />
     <TypeScriptCompile Include="Src\main.ts" />
+    <TypeScriptCompile Include="Src\suggest.tsx" />
     <TypeScriptCompile Include="Src\VGraph.ts" />
     <TypeScriptCompile Include="Src\VData.ts" />
     <TypeScriptCompile Include="Src\VText.ts" />

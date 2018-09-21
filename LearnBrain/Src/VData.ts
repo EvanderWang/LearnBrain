@@ -29,6 +29,23 @@ module data {
             this.listener = onNameChange;
         }
 
+        Save(): string {
+            return JSON.stringify({
+                name: this.name,
+                color: this.color,
+                guid: this.guid,
+                textObject: this.textObject,
+            });
+        }
+
+        Load(json: string) {
+            let dat = JSON.parse(json);
+            this.name = dat.name;
+            this.color = dat.color;
+            this.guid = dat.guid;
+            this.textObject = dat.textObject;
+        }
+
         //private hash(val: string): number {
         //    let hash = 0, i, chr;
         //    if (val.length === 0) return hash;
@@ -74,8 +91,23 @@ module data {
     }
 
     export class VLink {
-        constructor(public source: VNode, public target: VNode, public left: boolean, public right: boolean) {
+        constructor(public source: VNode, public target: VNode, public left: boolean, public right: boolean) { }
 
+        Save(): string {
+            return JSON.stringify({
+                source: this.source.guid,
+                target: this.target.guid,
+                left: this.left,
+                right: this.right,
+            });
+        }
+
+        Load(json: string, search: (guid: string) => VNode) {
+            let obj = JSON.parse(json);
+            this.source = search(obj.source);
+            this.target = search(obj.target);
+            this.left = obj.left;
+            this.right = obj.right;
         }
     }
 
@@ -95,7 +127,59 @@ module data {
             //this.links.push(new VLink(this.nodes[0], this.nodes[1], false, true));
             //this.links.push(new VLink(this.nodes[1], this.nodes[2], false, true));
         }
+
+        Save(): string {
+            let nodesStr = new Array<string>();
+            for (let i = 0; i < this.nodes.length; i++) {
+                nodesStr.push(this.nodes[i].Save());
+            }
+
+            let linksStr = new Array<string>();
+            for (let i = 0; i < this.links.length; i++) {
+                linksStr.push(this.links[i].Save());
+            }
+
+            let jsonArr = { nodes: nodesStr, links: linksStr }
+            return JSON.stringify(jsonArr);
+        }
+
+        Load(dat: string) {
+            this.Clear();
+
+            let datJson = JSON.parse(dat);
+            let nodesJson = datJson.nodes;
+            for (let i = 0; i < nodesJson.length; i++) {
+                let nodei = new VNode("");
+                nodei.Load(nodesJson[i]);
+                this.nodes.push(nodei);
+            }
+
+            let linksJson = datJson.links;
+            for (let i = 0; i < linksJson.length; i++) {
+                let linki = new VLink(null,null,false,false);
+                linki.Load(linksJson[i], (guid: string): VNode => { return this.findNodeByGUID(guid); });
+                this.links.push(linki);
+            }
+        }
+
+        Clear() {
+            this.nodes.splice(0, this.nodes.length);
+            this.links.splice(0, this.links.length);
+        }
+
+        private findNodeByGUID(guid: string): VNode {
+            for (let i = 0; i < this.nodes.length; i++) {
+                if (this.nodes[i].guid == guid) {
+                    return this.nodes[i];
+                }
+            }
+
+            console.error('error at find node, load data error');
+            return null;
+        }
     }
+
+    export var globalData = new VData();
 }
 
 export { data }

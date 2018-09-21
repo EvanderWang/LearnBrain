@@ -25,11 +25,18 @@ module graph {
 
         restart: () => void;
 
-        constructor(initVal: data.VData, nodeSelectChange: (cur: data.VNode | null, last: data.VNode | null) => void) {
+        lastSelectedNode: data.VNode | null = null;
+        selectedNode: data.VNode | null = null;
+        selectedLink: data.VLink | null = null;
+        mousedownLink: data.VLink | null = null;
+        mousedownNode: data.VNode | null = null;
+        mouseupNode: data.VNode | null = null;
+
+        constructor(public realData: data.VData, nodeSelectChange: (cur: data.VNode | null, last: data.VNode | null) => void) {
             let tick = () => {
-                if (selectedNode !== lastSelectedNode) {
-                    nodeSelectChange(selectedNode, lastSelectedNode);
-                    lastSelectedNode = selectedNode;
+                if (this.selectedNode !== this.lastSelectedNode) {
+                    nodeSelectChange(this.selectedNode, this.lastSelectedNode);
+                    this.lastSelectedNode = this.selectedNode;
                 }
                 
                 // draw directed edges with proper padding from node centers
@@ -65,13 +72,6 @@ module graph {
             this.resize();
             window.addEventListener('resize', () => { this.resize(); })
 
-            // set up initial nodes and links
-            //  - nodes are known by 'id', not by index in array.
-            //  - reflexive edges are indicated on the node (as a bold black circle).
-            //  - links are always source < target; edge directions are set by 'left' and 'right'.
-            const nodes = initVal.nodes;
-            const links = initVal.links;
-
             // define arrow markers for graph links
             this.selfDom.append('svg:defs').append('svg:marker')
                 .attr('id', 'end-arrow')
@@ -105,17 +105,10 @@ module graph {
             let circle = this.selfDom.append('svg:g').selectAll('g');
 
             // mouse event vars
-            let lastSelectedNode = null;
-            let selectedNode = null;
-            let selectedLink = null;
-            let mousedownLink = null;
-            let mousedownNode = null;
-            let mouseupNode = null;
-
             let resetMouseVars = () => {
-                mousedownNode = null;
-                mouseupNode = null;
-                mousedownLink = null;
+                this.mousedownNode = null;
+                this.mouseupNode = null;
+                this.mousedownLink = null;
             }
 
             // update graph (called when needed)
@@ -129,10 +122,10 @@ module graph {
                     .style('transform', () => "scale(" + this.scale + ")");
 
                 // path (link) group
-                path = path.data(links);
+                path = path.data(realData.links);
 
                 // update existing links
-                path.classed('selected', (d: data.VLink) => d === selectedLink)
+                path.classed('selected', (d: data.VLink) => d === this.selectedLink)
                     .style('marker-start', (d: data.VLink) => d.left ? 'url(#start-arrow)' : '')
                     .style('marker-end', (d: data.VLink) => d.right ? 'url(#end-arrow)' : '');
 
@@ -142,27 +135,27 @@ module graph {
                 // add new links
                 path = path.enter().append('svg:path')
                     .attr('class', 'link')
-                    .classed('selected', (d: data.VLink) => d === selectedLink)
+                    .classed('selected', (d: data.VLink) => d === this.selectedLink)
                     .style('marker-start', (d: data.VLink) => d.left ? 'url(#start-arrow)' : '')
                     .style('marker-end', (d: data.VLink) => d.right ? 'url(#end-arrow)' : '')
                     .on('mousedown', (d: data.VLink) => {
                         if (d3.event.ctrlKey) return;
 
                         // select link
-                        mousedownLink = d;
-                        selectedLink = (mousedownLink === selectedLink) ? null : mousedownLink;
-                        selectedNode = null;
+                        this.mousedownLink = d;
+                        this.selectedLink = (this.mousedownLink === this.selectedLink) ? null : this.mousedownLink;
+                        this.selectedNode = null;
                         this.restart();
                     })
                     .merge(path);
 
                 // circle (node) group
                 // NB: the function arg is crucial here! nodes are known by id, not by index!
-                circle = circle.data(nodes, (d: data.VNode) => d.guid);
+                circle = circle.data(realData.nodes, (d: data.VNode) => d.guid);
 
                 // update existing nodes (reflexive & selected visual states)
                 circle.selectAll('circle')
-                    .style('fill', (d: data.VNode) => (d === selectedNode) ? d3.rgb(d.color).brighter().toString() : d.color)
+                    .style('fill', (d: data.VNode) => (d === this.selectedNode) ? d3.rgb(d.color).brighter().toString() : d.color)
                     .style('stroke', (d: data.VNode) => d3.rgb(d.color).darker().toString())
 
                 circle.selectAll('text')
@@ -173,8 +166,45 @@ module graph {
 
                 // add new nodes
 
-                let nodemouseup = (d: data.VNode, selectitem: any) => {
-                    if (!mousedownNode) return;
+                
+
+                const g = circle.enter().append('svg:g');
+
+                let g_mouseover = (d: data.VNode, selectObj: any) => {
+                    if (!this.mousedownNode || d === this.mousedownNode) return;
+                    // enlarge target node
+                    d3.select(selectObj).attr('transform', 'scale(1.1)');
+                }
+                let g_mouseout = (d: data.VNode, selectObj: any) => {
+                    if (!this.mousedownNode || d === this.mousedownNode) return;
+                    // unenlarge target node
+                    d3.select(selectObj).attr('transform', '');
+                }
+
+                let g_mousedown = (d: data.VNode, selectObj: any) => {
+                    if (d3.event.ctrlKey) return;
+
+                    // select node
+                    this.mousedownNode = d;
+                    this.selectedNode = (this.mousedownNode === this.selectedNode) ? null : this.mousedownNode;
+                    this.selectedLink = null;
+
+                    if (d3.event.buttons == 1) {
+                        // reposition drag line
+                        dragLine
+                            .style('marker-end', 'url(#end-arrow)')
+                            .classed('hidden', false)
+                            .attr('d', `M${(<any>this.mousedownNode).x},${(<any>this.mousedownNode).y}L${(<any>this.mousedownNode).x},${(<any>this.mousedownNode).y}`);
+                    } else if (d3.event.buttons == 2) {
+                        (<any>this.mousedownNode).fx = (<any>this.mousedownNode).x;
+                        (<any>this.mousedownNode).fy = (<any>this.mousedownNode).y;
+                    }
+
+                    this.restart();
+                }
+
+                let g_mouseup = (d: data.VNode, selectObj: any) => {
+                    if (!this.mousedownNode) return;
 
                     // needed by FF
                     dragLine
@@ -182,77 +212,46 @@ module graph {
                         .style('marker-end', '');
 
                     // check for drag-to-self
-                    mouseupNode = d;
-                    if (mouseupNode === mousedownNode) {
-                        mousedownNode.fx = null;
-                        mousedownNode.fy = null;
+                    this.mouseupNode = d;
+                    if (this.mouseupNode === this.mousedownNode) {
+                        (<any>this.mousedownNode).fx = null;
+                        (<any>this.mousedownNode).fy = null;
 
                         resetMouseVars();
                         return;
                     }
 
                     // unenlarge target node
-                    d3.select(selectitem).attr('transform', '');
+                    d3.select(selectObj).attr('transform', '');
 
                     // add link to graph (update if exists)
                     // NB: links are strictly source < target; arrows separately specified by booleans
-                    const isRight = mousedownNode.guid < mouseupNode.guid;
-                    const source = isRight ? mousedownNode : mouseupNode;
-                    const target = isRight ? mouseupNode : mousedownNode;
+                    const isRight = this.mousedownNode.guid < this.mouseupNode.guid;
+                    const source = isRight ? this.mousedownNode : this.mouseupNode;
+                    const target = isRight ? this.mouseupNode : this.mousedownNode;
 
-                    const link = links.filter((l) => l.source === source && l.target === target)[0];
+                    const link = realData.links.filter((l) => l.source === source && l.target === target)[0];
                     if (link) {
                         link[isRight ? 'right' : 'left'] = true;
                     } else {
-                        links.push({ source, target, left: !isRight, right: isRight });
+                        realData.links.push(new data.VLink(source, target, !isRight, isRight));
                     }
 
                     // select new link
-                    selectedLink = link;
-                    selectedNode = null;
+                    this.selectedLink = link;
+                    this.selectedNode = null;
                     this.restart();
                 };
 
-                const g = circle.enter().append('svg:g');
                 g.append('svg:circle')
                     .attr('class', 'node')
                     .attr('r', this.nodeRadius)
-                    .style('fill', (d: data.VNode) => (d === selectedNode) ? d3.rgb(d.color).brighter().toString() : d.color)
+                    .style('fill', (d: data.VNode) => (d === this.selectedNode) ? d3.rgb(d.color).brighter().toString() : d.color)
                     .style('stroke', (d: data.VNode) => d3.rgb(d.color).darker().toString())
-                    .on('mouseover', function (d: data.VNode) {
-                        if (!mousedownNode || d === mousedownNode) return;
-                        // enlarge target node
-                        d3.select(this).attr('transform', 'scale(1.1)');
-                    })
-                    .on('mouseout', function (d: data.VNode) {
-                        if (!mousedownNode || d === mousedownNode) return;
-                        // unenlarge target node
-                        d3.select(this).attr('transform', '');
-                    })
-                    .on('mousedown', (d: data.VNode) => {
-                        if (d3.event.ctrlKey) return;
-
-                        // select node
-                        mousedownNode = d;
-                        selectedNode = (mousedownNode === selectedNode) ? null : mousedownNode;
-                        selectedLink = null;
-
-                        if (d3.event.buttons == 1) {
-                            // reposition drag line
-                            dragLine
-                                .style('marker-end', 'url(#end-arrow)')
-                                .classed('hidden', false)
-                                .attr('d', `M${mousedownNode.x},${mousedownNode.y}L${mousedownNode.x},${mousedownNode.y}`);
-                        } else if (d3.event.buttons == 2) {
-                            mousedownNode.fx = mousedownNode.x;
-                            mousedownNode.fy = mousedownNode.y;
-                        }
-
-                        this.restart();
-                    })
-                    .on('mouseup', function (d: data.VNode) {
-                        nodemouseup(d, this);
-                    });
+                    .on('mouseover', function (d: data.VNode) { g_mouseover(d, this); })
+                    .on('mouseout', function (d: data.VNode) { g_mouseout(d, this); })
+                    .on('mousedown', function (d: data.VNode) { g_mousedown(d, this); })
+                    .on('mouseup', function (d: data.VNode) { g_mouseup(d, this); });
 
                 // show node IDs
                 g.append('svg:text')
@@ -264,7 +263,7 @@ module graph {
                 circle = g.merge(circle);
 
                 // set the graph in motion
-                (<any>this.forceLayout.nodes(nodes).force('link')).links(links);
+                (<any>this.forceLayout.nodes(realData.nodes).force('link')).links(realData.links);
 
                 this.forceLayout.alphaTarget(0.3).restart();
             }
@@ -281,7 +280,7 @@ module graph {
                 // because :active only works in WebKit?
                 this.selfDom.classed('active', true);
 
-                if (mousedownNode || mousedownLink) return;
+                if (this.mousedownNode || this.mousedownLink) return;
 
                 if (d3.event.ctrlKey) {
                     // insert new node at point
@@ -289,10 +288,10 @@ module graph {
                     (<any>node).x = pos[0];
                     (<any>node).y = pos[1];
                     node.listenNameChange(this.restart);
-                    nodes.push(node);
+                    realData.nodes.push(node);
                 } else {
-                    selectedNode = null;
-                    selectedLink = null;
+                    this.selectedNode = null;
+                    this.selectedLink = null;
                 }
 
                 this.restart();
@@ -306,21 +305,21 @@ module graph {
                     return;
                 }
 
-                if (!mousedownNode) return;
+                if (!this.mousedownNode) return;
 
                 if (d3.event.buttons == 1) {
                     // update drag line
-                    dragLine.attr('d', `M${mousedownNode.x},${mousedownNode.y}L${pos[0]},${pos[1]}`);
+                    dragLine.attr('d', `M${(<any>this.mousedownNode).x},${(<any>this.mousedownNode).y}L${pos[0]},${pos[1]}`);
                 } else if (d3.event.buttons == 2) {
-                    mousedownNode.fx = pos[0];
-                    mousedownNode.fy = pos[1];
+                    (<any>this.mousedownNode).fx = pos[0];
+                    (<any>this.mousedownNode).fy = pos[1];
                 }
 
                 this.restart();
             }
 
             let mouseup = () => {
-                if (mousedownNode) {
+                if (this.mousedownNode) {
                     // hide drag line
                     dragLine
                         .classed('hidden', true)
@@ -335,9 +334,9 @@ module graph {
             }
 
             let spliceLinksForNode = (node) => {
-                const toSplice = links.filter((l) => l.source === node || l.target === node);
+                const toSplice = realData.links.filter((l) => l.source === node || l.target === node);
                 for (const l of toSplice) {
-                    links.splice(links.indexOf(l), 1);
+                    realData.links.splice(realData.links.indexOf(l), 1);
                 }
             }
 
@@ -350,19 +349,19 @@ module graph {
                 if (lastKeyDown !== -1) return;
                 lastKeyDown = d3.event.keyCode;
             
-                if (!selectedNode && !selectedLink) return;
+                if (!this.selectedNode && !this.selectedLink) return;
             
                 switch (d3.event.keyCode) {
                     case 8:  // bacespace
                     case 46: // delete
-                        if (selectedNode) {
-                            nodes.splice(nodes.indexOf(selectedNode), 1);
-                            spliceLinksForNode(selectedNode);
-                        } else if (selectedLink) {
-                            links.splice(links.indexOf(selectedLink), 1);
+                        if (this.selectedNode) {
+                            realData.nodes.splice(realData.nodes.indexOf(this.selectedNode), 1);
+                            spliceLinksForNode(this.selectedNode);
+                        } else if (this.selectedLink) {
+                            realData.links.splice(realData.links.indexOf(this.selectedLink), 1);
                         }
-                        selectedLink = null;
-                        selectedNode = null;
+                        this.selectedLink = null;
+                        this.selectedNode = null;
                         this.restart();
                         break;
                 }
@@ -373,8 +372,8 @@ module graph {
             }
 
             // app starts here
-            for (let i = 0; i < nodes.length; i++) {
-                nodes[i].listenNameChange(this.restart);
+            for (let i = 0; i < realData.nodes.length; i++) {
+                realData.nodes[i].listenNameChange(this.restart);
             }
 
             this.selfDom.on('mousedown', function () { mousedown(d3.mouse(this)); })
@@ -445,6 +444,19 @@ module graph {
 
         repos() {
             this.forceLayout.force('x', d3.forceX(this.width / this.scale / 2 + this.centerOffsetX)).force('y', d3.forceY(this.height / this.scale / 2 + this.centerOffsetY));
+        }
+
+        setSelectNode(node: data.VNode | null) {
+            this.selectedNode = node;
+            this.selectedLink = null;
+
+            if (node) {
+                this.centerOffsetX = this.width / this.scale / 2 - (<any>node).x + this.centerOffsetX;
+                this.centerOffsetY = this.height / this.scale / 2 - (<any>node).y + this.centerOffsetY;
+                this.repos();
+            }
+            
+            this.restart();
         }
     }
 }
