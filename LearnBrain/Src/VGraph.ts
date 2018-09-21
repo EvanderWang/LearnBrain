@@ -161,7 +161,7 @@ module graph {
                         } else {
                             return d.color;
                         }
-                        //(d === this.selectedNode) ? d3.rgb(d.color).brighter().toString() : d.color)
+                        //return (d === this.selectedNode) ? d3.rgb(d.color).brighter().toString() : d.color;
                     })
                     .style('stroke', (d: data.VNode) => d3.rgb(d.color).darker().toString())
 

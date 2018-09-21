@@ -130,9 +130,9 @@ module data {
 
         // 3 level
         useRelationPainter(myNode: VNode, targetNode: VNode): string {
-            let baseColor = "#ffC300"
-            let darkerColor = d3.rgb(baseColor).darker().toString();
-            let darkestColor = d3.rgb(baseColor).darker().darker().darker().toString();
+            let baseColor = d3.rgb(myNode.color).brighter().brighter().toString();
+            let darkerColor = myNode.color;
+            let darkestColor = d3.rgb(myNode.color).darker().darker().toString();
             if (myNode === targetNode) {
                 return baseColor;
             } else {
