@@ -18,10 +18,12 @@ module data {
         }
 
         changeName(name: string) {
-            this.name = name;
-            //this.color = baseColor(name);
-            if (this.listener) {
-                this.listener();
+            if (this.name != name) {
+                this.name = name;
+                this.color = baseColor(name);
+                if (this.listener) {
+                    this.listener();
+                }
             }
         }
 

@@ -56,18 +56,24 @@
     <link rel="stylesheet" href="./Third/@blueprintjs/blueprint-icons.css">
     <link rel="stylesheet" href="./Third/@blueprintjs/blueprint-select.css">
 
+    <!-- splitter -->
+    <script type="text/javascript" src="./Third/splitter/splitter.js"></script>
+    <link rel="stylesheet" type="text/css" href="./Third/splitter/splitter.css" />
+
     <!-- src code -->
     <link rel="stylesheet" type="text/css" href="./index.css" />
     <script data-main="./AmdLoader/requireconfig" data-mainpoint="./Src/main" src="./AmdLoader/require.js"></script>
 </head>
 <body>
-    <div id="graph_area"></div>
-    <div id="quill_area">
-        <div id="quill_editor"></div>
-    </div>
     <div id="menu_area">
         <div id="menu" style="position: absolute; z-index: 1"></div>
-        <input type="file" id="load_hidden_file" style="display:none"/>
+        <input type="file" id="load_hidden_file" style="display:none" />
+    </div>
+    <div class="vertically_divided">
+        <div id="graph_area"></div>
+        <div id="quill_area">
+            <div id="quill_editor"></div>
+        </div>
     </div>
 </body>
 </html>

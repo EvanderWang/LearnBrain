@@ -38,6 +38,13 @@ module graph {
                     nodeSelectChange(this.selectedNode, this.lastSelectedNode);
                     this.lastSelectedNode = this.selectedNode;
                 }
+
+                let parentwidth = parseInt(this.parent.style("width"));
+                let parentheight = parseInt(this.parent.style("height"));
+
+                if (parentwidth != this.width || parentheight != this.height) {
+                    this.resize();
+                }
                 
                 // draw directed edges with proper padding from node centers
                 path.attr('d', (d: any) => {
@@ -70,7 +77,9 @@ module graph {
                 .on('tick', tick);
 
             this.resize();
-            window.addEventListener('resize', () => { this.resize(); })
+            window.addEventListener('resize', () => { this.resize(); });
+            let area = document.getElementById('graph_area');//.addEventListener('resize', () => { this.resize(); });
+            
 
             // define arrow markers for graph links
             this.selfDom.append('svg:defs').append('svg:marker')

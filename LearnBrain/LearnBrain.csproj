@@ -1476,6 +1476,9 @@
     <Content Include="Third\react-transition-group\react-transition-group.min.js" />
     <Content Include="Third\react\react-dom.development.js" />
     <Content Include="Third\react\react.development.js" />
+    <Content Include="Third\splitter\splitter.css" />
+    <Content Include="Third\splitter\splitter.js" />
+    <Content Include="Third\splitter\splitter.min.js" />
     <Content Include="Third\the-graph-dist\the-graph-render.js" />
     <Content Include="Third\the-graph-dist\the-graph.js" />
     <Content Include="Third\the-graph-dist\vendor.js" />
