@@ -52,10 +52,9 @@ module text {
 
             var customButton = document.querySelector('.ql-omega');
             customButton.addEventListener('click', () => {
-                var range = this.quill.getSelection();
-                if (range) {
-                    this.quill.formatText(range.index, range.length, "color", "red");
-                }
+                let length = this.quill.getLength();
+                this.quill.formatText(0, length, 'font', 'monaco');
+                this.quill.formatText(0, length, 'size', '20px');
             });
 
             this.quill.on('text-change', (delta, oldDelta, source) => {
@@ -99,6 +98,12 @@ module text {
             }
 
             this.currentNode = node;
+        }
+
+        preSave() {
+            if (this.currentNode) {
+                this.currentNode.textObject = JSON.stringify(this.quill.getContents());
+            }
         }
     }
 }

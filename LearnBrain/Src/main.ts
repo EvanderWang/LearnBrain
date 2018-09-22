@@ -19,6 +19,8 @@ module module_main{
         let mse = React.createElement(NodeSuggestClass, {
             graphEditor: graphEditor,
             save: () => {
+                textEditor.preSave();
+
                 let now = new Date();
                 let text = data.globalData.Save();
                 let blob = new Blob([text], { type: "text/plain;charset=utf-8" });
