@@ -130,11 +130,12 @@ module data {
             //this.links.push(new VLink(this.nodes[1], this.nodes[2], false, true));
         }
 
-        // 3 level
+        // 4 level
         useRelationPainter(myNode: VNode, targetNode: VNode): string {
-            let baseColor = d3.rgb(myNode.color).brighter().brighter().toString();
+            let baseColor = d3.rgb(myNode.color).brighter().toString();
             let darkerColor = myNode.color;
-            let darkestColor = d3.rgb(myNode.color).darker().darker().toString();
+            let darkestColor = d3.rgb(myNode.color).darker().toString();
+            let darkestestColor = d3.rgb(darkestColor).darker().toString();
             if (myNode === targetNode) {
                 return baseColor;
             } else {
@@ -164,7 +165,7 @@ module data {
             return JSON.stringify(jsonArr);
         }
 
-        Load(dat: string) {
+        Load(dat: string, listener: () => void) {
             this.Clear();
 
             let datJson = JSON.parse(dat);
@@ -172,6 +173,7 @@ module data {
             for (let i = 0; i < nodesJson.length; i++) {
                 let nodei = new VNode("");
                 nodei.Load(nodesJson[i]);
+                nodei.listenNameChange(listener);
                 this.nodes.push(nodei);
             }
 

@@ -41,7 +41,7 @@ module module_main{
             var reader = new FileReader();
             reader.onload = (dat) => {
                 let datStr: string = (<any>dat.currentTarget).result;
-                data.globalData.Load(datStr);
+                data.globalData.Load(datStr, graphEditor.restart);
                 graphEditor.restart();
             };
             reader.readAsText((<any>ev.target).files[0])
