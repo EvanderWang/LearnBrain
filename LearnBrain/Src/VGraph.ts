@@ -37,6 +37,7 @@ module graph {
                 if (this.selectedNode !== this.lastSelectedNode) {
                     nodeSelectChange(this.selectedNode, this.lastSelectedNode);
                     this.lastSelectedNode = this.selectedNode;
+                    this.restart();
                 }
 
                 let parentwidth = parseInt(this.parent.style("width"));
@@ -164,14 +165,7 @@ module graph {
 
                 // update existing nodes (reflexive & selected visual states)
                 circle.selectAll('circle')
-                    .style('fill', (d: data.VNode) => {
-                        if (this.selectedNode != null) {
-                            return realData.useRelationPainter(d, this.selectedNode);
-                        } else {
-                            return d.color;
-                        }
-                        //return (d === this.selectedNode) ? d3.rgb(d.color).brighter().toString() : d.color;
-                    })
+                    .style('fill', (d: data.VNode) => d.useStyledColor())
                     .style('stroke', (d: data.VNode) => d3.rgb(d.color).darker().toString())
 
                 circle.selectAll('text')
