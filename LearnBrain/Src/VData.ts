@@ -3,9 +3,19 @@
 module data {
     let baseColor: d3.ScaleOrdinal<string, string> = d3.scaleOrdinal(d3.schemeCategory10);;
 
+    export enum VENodeStyle {
+        NORMAL,
+        SELECT,
+        NEARSELECT,
+        NEARNEARSELECT,
+        INMAP,
+        OUTMAP,
+    }
+
     export class VNode {
         listener: (() => void) | null
         textObject: string | null = null;
+        style: VENodeStyle = VENodeStyle.NORMAL;
 
         constructor(public name: string, public color?: string, public guid?: string) {
             if (this.guid == undefined) {
@@ -46,6 +56,23 @@ module data {
             this.color = dat.color;
             this.guid = dat.guid;
             this.textObject = dat.textObject;
+        }
+
+        useStyledColor(): string {
+            switch (this.style) {
+                case VENodeStyle.NORMAL:
+                    return this.color;
+                case VENodeStyle.SELECT:
+                    return d3.rgb(this.color).brighter().brighter().toString();
+                case VENodeStyle.NEARSELECT:
+                    return d3.rgb(this.color).brighter().toString();
+                case VENodeStyle.NEARNEARSELECT:
+                    return this.color;
+                case VENodeStyle.INMAP:
+                    return d3.rgb(this.color).darker().toString();
+                case VENodeStyle.OUTMAP:
+                    return d3.rgb(this.color).darker().darker().darker().toString();
+            }
         }
 
         //private hash(val: string): number {
@@ -130,25 +157,99 @@ module data {
             //this.links.push(new VLink(this.nodes[1], this.nodes[2], false, true));
         }
 
-        // 4 level
-        useRelationPainter(myNode: VNode, targetNode: VNode): string {
-            let baseColor = d3.rgb(myNode.color).brighter().toString();
-            let darkerColor = myNode.color;
-            let darkestColor = d3.rgb(myNode.color).darker().toString();
-            let darkestestColor = d3.rgb(darkestColor).darker().toString();
-            if (myNode === targetNode) {
-                return baseColor;
-            } else {
+        selectNode(selected: VNode | null) {
+            for (let i = 0; i < this.nodes.length; i++) {
+                this.nodes[i].style = VENodeStyle.NORMAL;
+            }
+
+            if (selected) {
+                selected.style = VENodeStyle.SELECT;
+
+                let outNodes = new Array<VNode>();
+                outNodes.push(selected);
+                let leftLinks = new Array<VLink>();
+
+                let curLevel = VENodeStyle.NEARSELECT;
+
+                let outNodestemp = new Array<VNode>();
                 for (let i = 0; i < this.links.length; i++) {
-                    if (this.links[i].source === targetNode && this.links[i].target === myNode) {
-                        return darkerColor;
-                    } else if (this.links[i].source === myNode && this.links[i].target === targetNode) {
-                        return darkerColor;
+                    for (let j = 0; j < outNodes.length; j++) {
+                        if (this.links[i].source == outNodes[j] && this.links[i].target.style == VENodeStyle.NORMAL) {
+                            this.links[i].target.style = curLevel;
+                            outNodestemp.push(this.links[i].target);
+                            break;
+                        } else if (this.links[i].target == outNodes[j] && this.links[i].source.style == VENodeStyle.NORMAL) {
+                            this.links[i].source.style = curLevel;
+                            outNodestemp.push(this.links[i].source);
+                            break;
+                        }
                     }
                 }
-                return darkestColor;
+
+                outNodes = outNodes.concat(outNodestemp);
+                outNodestemp.splice(0, outNodestemp.length);
+                curLevel = VENodeStyle.NEARNEARSELECT;
+                for (let i = 0; i < this.links.length; i++) {
+                    for (let j = 0; j < outNodes.length; j++) {
+                        if (this.links[i].source == outNodes[j] && this.links[i].target.style == VENodeStyle.NORMAL) {
+                            this.links[i].target.style = curLevel;
+                            outNodestemp.push(this.links[i].target);
+                            break;
+                        } else if (this.links[i].target == outNodes[j] && this.links[i].source.style == VENodeStyle.NORMAL) {
+                            this.links[i].source.style = curLevel;
+                            outNodestemp.push(this.links[i].source);
+                            break;
+                        }
+                    }
+                }
+
+                while (outNodestemp.length != 0) {
+                    outNodes = outNodes.concat(outNodestemp);
+                    outNodestemp.splice(0, outNodestemp.length);
+                    curLevel = VENodeStyle.INMAP;
+
+                    for (let i = 0; i < this.links.length; i++) {
+                        for (let j = 0; j < outNodes.length; j++) {
+                            if (this.links[i].source == outNodes[j] && this.links[i].target.style == VENodeStyle.NORMAL) {
+                                this.links[i].target.style = curLevel;
+                                outNodestemp.push(this.links[i].target);
+                                break;
+                            } else if (this.links[i].target == outNodes[j] && this.links[i].source.style == VENodeStyle.NORMAL) {
+                                this.links[i].source.style = curLevel;
+                                outNodestemp.push(this.links[i].source);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                for (let i = 0; i < this.nodes.length; i++) {
+                    if (this.nodes[i].style == VENodeStyle.NORMAL) {
+                        this.nodes[i].style = VENodeStyle.OUTMAP;
+                    }
+                    
+                }
             }
         }
+
+        // 3 level
+        //useRelationPainter(myNode: VNode, targetNode: VNode): string {
+        //    let baseColor = d3.rgb(myNode.color).brighter().brighter().toString();
+        //    let darkerColor = myNode.color;
+        //    let darkestColor = d3.rgb(myNode.color).darker().darker().toString();
+        //    if (myNode === targetNode) {
+        //        return baseColor;
+        //    } else {
+        //        for (let i = 0; i < this.links.length; i++) {
+        //            if (this.links[i].source === targetNode && this.links[i].target === myNode) {
+        //                return darkerColor;
+        //            } else if (this.links[i].source === myNode && this.links[i].target === targetNode) {
+        //                return darkerColor;
+        //            }
+        //        }
+        //        return darkestColor;
+        //    }
+        //}
 
         Save(): string {
             let nodesStr = new Array<string>();

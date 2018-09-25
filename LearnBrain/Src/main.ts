@@ -13,6 +13,7 @@ module module_main{
         //let graphData = new data.VData();
         let textEditor = new text.VText();
         let graphEditor = new graph.VGraph(data.globalData, (cur: data.VNode | null, last: data.VNode | null) => {
+            data.globalData.selectNode(cur);
             textEditor.setDisplayNode(cur);
         });
 
