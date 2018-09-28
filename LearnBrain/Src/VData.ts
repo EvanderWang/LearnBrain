@@ -266,7 +266,7 @@ module data {
             return JSON.stringify(jsonArr);
         }
 
-        Load(dat: string) {
+        Load(dat: string, listener: () => void) {
             this.Clear();
 
             let datJson = JSON.parse(dat);
@@ -274,6 +274,7 @@ module data {
             for (let i = 0; i < nodesJson.length; i++) {
                 let nodei = new VNode("");
                 nodei.Load(nodesJson[i]);
+                nodei.listenNameChange(listener);
                 this.nodes.push(nodei);
             }
 

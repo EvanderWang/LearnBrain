@@ -31,7 +31,7 @@ export class NodeSuggestClass extends React.PureComponent<ISuggestProp, ISuggest
         minimal: true,
         openOnKeyDown: false,
         resetOnQuery: true,
-        resetOnSelect: false,
+        resetOnSelect: true,
     };
 
     private onLoad = () => {
