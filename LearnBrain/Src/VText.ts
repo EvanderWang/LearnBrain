@@ -41,10 +41,20 @@ module text {
 
             this.quill = new Quill('#quill_editor', {
                 modules: {
+                    formula: true,
                     toolbar: toolbarOptions
                 },
                 theme: 'snow',
             });
+
+            this.quill.keyboard.addBinding({
+                key: 220,
+                shortKey: true
+            }, (range, context) => {
+                this.quill.theme.tooltip.edit('formula');
+            });
+
+            //this.quill.enableMathQuillFormulaAuthoring();
 
             this.quill.format('font', 'monaco');
             this.quill.format('size', '20px');
@@ -77,7 +87,7 @@ module text {
             });
 
             // test use
-            //(<any>window).quill = this.quill;
+            (<any>window).quill = this.quill;
         }
 
         setDisplayNode(node: data.VNode | null) {

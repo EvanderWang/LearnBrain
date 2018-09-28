@@ -63,7 +63,7 @@ module data {
                 case VENodeStyle.NORMAL:
                     return this.color;
                 case VENodeStyle.SELECT:
-                    return d3.rgb(this.color).brighter().brighter().toString();
+                    return "#FFFFFF";
                 case VENodeStyle.NEARSELECT:
                     return d3.rgb(this.color).brighter().toString();
                 case VENodeStyle.NEARNEARSELECT:

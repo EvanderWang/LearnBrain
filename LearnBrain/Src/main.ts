@@ -17,20 +17,22 @@ module module_main{
             textEditor.setDisplayNode(cur);
         });
 
+        let save = () => {
+            textEditor.preSave();
+
+            let now = new Date();
+            let text = data.globalData.Save();
+            let blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+            let anchor = document.createElement('a');
+            anchor.download = "LearnBrain_" + now.toLocaleString() + ".lb";
+            anchor.href = ((<any>window).webkitURL || window.URL).createObjectURL(blob);
+            anchor.dataset.downloadurl = ['text/plain', anchor.download, anchor.href].join(':');
+            anchor.click();
+        }
+            ;
         let mse = React.createElement(NodeSuggestClass, {
             graphEditor: graphEditor,
-            save: () => {
-                textEditor.preSave();
-
-                let now = new Date();
-                let text = data.globalData.Save();
-                let blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-                let anchor = document.createElement('a');
-                anchor.download = "LearnBrain_" + now.toLocaleString() + ".lb";
-                anchor.href = ((<any>window).webkitURL || window.URL).createObjectURL(blob);
-                anchor.dataset.downloadurl = ['text/plain', anchor.download, anchor.href].join(':');
-                anchor.click();
-            },
+            save: save,
             load: () => {
                 document.getElementById('load_hidden_file').click();
             }
@@ -46,6 +48,14 @@ module module_main{
                 graphEditor.restart();
             };
             reader.readAsText((<any>ev.target).files[0])
+        });
+
+        window.addEventListener('keydown', (ev: KeyboardEvent) => {
+            if (ev.ctrlKey && ev.keyCode == 83) {
+                save();
+                ev.preventDefault();
+                return false;
+            }
         });
 
         // test use

@@ -35,6 +35,11 @@ body {
     font-family: 'FontAwesomeSVG', 'FontAwesomeSVG2', 'FontAwesomeSVG3', 'FontAwesomeSVG4';
 }
 
+
+.ql-tooltip{
+    position: fixed;
+}
+
 /*custom button*/
 .ql-omega:after {
     font-family: 'FontAwesomeSVG', 'FontAwesomeSVG2', 'FontAwesomeSVG3', 'FontAwesomeSVG4';
