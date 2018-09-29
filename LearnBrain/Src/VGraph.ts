@@ -299,10 +299,11 @@ module graph {
                     (<any>node).y = pos[1];
                     node.listenNameChange(this.restart);
                     realData.nodes.push(node);
-                } else {
-                    this.selectedNode = null;
-                    this.selectedLink = null;
                 }
+                //else {
+                //    this.selectedNode = null;
+                //    this.selectedLink = null;
+                //}
 
                 this.restart();
             }
