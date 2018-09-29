@@ -15,18 +15,20 @@
       return false;
     }
 
-    if (!quill.options.modules.formula) {
-      console.log("Formula module not enabled");
-      return false;
-    }
+    //if (!quill.options.modules.formula) {
+    //  console.log("Formula module not enabled");
+    //  return false;
+    //}
 
     return true;
   }
 
   function applyInputStyles(mqInput) {
+    mqInput.style.border = "1px solid #ccc";
+    mqInput.style.fontSize = "13px";
     mqInput.style.minHeight = "26px";
     mqInput.style.margin = "0px";
-    mqInput.style.padding = "3px 5px";
+    mqInput.style.padding = "5px 5px";
     mqInput.style.width = "170px";
   }
 
@@ -44,15 +46,17 @@
     return tooltip.getElementsByClassName("ql-action")[0];
   }
 
-  Quill.prototype.enableMathQuillFormulaAuthoring = function() {
+  Quill.prototype.enableMathQuillFormulaAuthoring = function(setMQ) {
     if (!areAllDependenciesMet(this)) {
       return;
     }
 
     // replace LaTeX formula input wiht MathQuill input
     var latexInput = getTooltipLatexFormulaInput(this);
+    latexInput.id = "ql_tooltip_input_normal";
     latexInput.style.display = "none";
     var mqInput = document.createElement("span");
+    mqInput.id = "ql_tooltip_input_math";
     applyInputStyles(mqInput);
     insertAfter(mqInput, latexInput);
 
@@ -65,10 +69,23 @@
       }
     });
 
-    // don't show the old math when the tooltip gets opened next time
-    getTooltipSaveButton(this).addEventListener("click", function() {
+    setMQ(mqField);
+
+      // don't show the old math when the tooltip gets opened next time
+    var saveButton = getTooltipSaveButton(this)
+    saveButton.addEventListener("click", function () {
       mqField.latex("");
     });
+
+    $(mqInput).on("keypress", function (ev) {
+        if (ev.key == 'Enter') {
+            var disevt = document.createEvent("event");
+            disevt.initEvent("click", true, true);
+            saveButton.dispatchEvent(disevt);
+            ev.stopPropagation();
+            return false;
+        }
+    })
   };
 
 })(window.Quill, window.MathQuill);

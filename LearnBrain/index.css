@@ -41,7 +41,7 @@ body {
 }
 
 /*custom button*/
-.ql-omega:after {
+.ql-lb-format:after {
     font-family: 'FontAwesomeSVG', 'FontAwesomeSVG2', 'FontAwesomeSVG3', 'FontAwesomeSVG4';
     /*color: red;*/
     content: '\f55d';

@@ -1,13 +1,18 @@
 ﻿declare var Quill: any;
 
+import * as $ from "jquery";
 import { data } from "./VData";
 import { attrlistener } from "./VAttrListener";
 
 module text {
+    class VSwitcher {
+        val: boolean = true;
+    }
+
     class VTooltipShownReceiver implements attrlistener.IVAttrChangeReceiver {
         lastRange: { index: number, length: number } | null;
 
-        constructor(private tooltip: Element, private quill: any) {
+        constructor(private tooltip: Element, private quill: any, private MathQuill: any, private fromButton: VSwitcher) {
             this.quill.on('selection-change', (range, oldRange, source) => {
                 this.lastRange = range;
             });
@@ -25,9 +30,35 @@ module text {
                 let showpostop = select_fixtop + select_bounds.height;
 
                 this.tooltip.setAttribute("style", "position: fixed; z-index: 10;left: " + showposleft + "px; top: " + showpostop + "px");
+
+                if (!this.fromButton.val) {
+                    this.fromButton.val = true;
+                    let mode = this.tooltip.getAttribute('data-mode');
+                    if (mode == "formula") {
+                        this.MathQuill.focus();
+                    }
+                }
             }
         }
     }
+
+    class VTooltipModeReceiver implements attrlistener.IVAttrChangeReceiver {
+        constructor(/*private tooltip: Element, private quill: any*/) {}
+
+        onchange(attrName: string, changedData: string) {
+            let mathinput = document.getElementById("ql_tooltip_input_math");
+            let normalinput = document.getElementById("ql_tooltip_input_normal");
+
+            if (changedData == "formula") {
+                mathinput.style.display = "inline-block";
+                normalinput.style.display = "none";
+            } else {
+                mathinput.style.display = "none";
+                normalinput.style.display = "inline-block";
+            }
+        }
+    }
+
 
     export class VText {
         quill: any;
@@ -61,34 +92,43 @@ module text {
                 ['link', 'image', 'video'],
                 ['formula'],
 
-                ['clean'],                                         // remove formatting button
-                ['omega'],
+                //['clean'],                                         // remove formatting button
+                ['lb-format'],
+                ['lb-formula'],
             ];
 
             this.quill = new Quill('#quill_editor', {
                 modules: {
-                    formula: true,
+                    //formula: true,
                     toolbar: toolbarOptions
                 },
                 theme: 'snow',
             });
+            
+
+            // set quill tooltip manager
+            let fromButtonSwitcher = new VSwitcher();
+
+            this.quill.enableMathQuillFormulaAuthoring((MathQuill: any) => {
+                let tooltip = document.getElementsByClassName("ql-tooltip")[0];
+                tooltip.setAttribute("data-mode", "formula");
+                let receiver_shown = new VTooltipShownReceiver(tooltip, this.quill, MathQuill, fromButtonSwitcher);
+                let receiver_mode = new VTooltipModeReceiver();
+                let listener_shown = new attrlistener.VAttrChangeListener(tooltip, "class", receiver_shown);
+                let listener_mode = new attrlistener.VAttrChangeListener(tooltip, "data-mode", receiver_mode);
+            });
+
+            this.quill.format('font', 'monaco');
+            this.quill.format('size', '20px');
+            this.quill.disable();
 
             this.quill.keyboard.addBinding({
                 key: 220,
                 shortKey: true
             }, (range, context) => {
+                fromButtonSwitcher.val = false;
                 this.quill.theme.tooltip.edit('formula');
             });
-
-            // set quill tooltip manager
-            //this.quill.enableMathQuillFormulaAuthoring();
-            let tooltip = document.getElementsByClassName("ql-tooltip")[0];
-            let receiver = new VTooltipShownReceiver(tooltip, this.quill);
-            let listener = new attrlistener.VAttrChangeListener(tooltip, "class", receiver);
-
-            this.quill.format('font', 'monaco');
-            this.quill.format('size', '20px');
-            this.quill.disable();
 
             let doFormat = () => {
                 let length = this.quill.getLength();
@@ -96,8 +136,8 @@ module text {
                 this.quill.formatText(0, length, 'size', '20px');
             };
 
-            var customButton = document.querySelector('.ql-omega');
-            customButton.addEventListener('click', doFormat);
+            var customFormatButton = document.querySelector('.ql-lb-format');
+            customFormatButton.addEventListener('click', doFormat);
 
             window.addEventListener('keydown', (ev: KeyboardEvent) => {
                 if (ev.key == 'm' && ev.ctrlKey) {
