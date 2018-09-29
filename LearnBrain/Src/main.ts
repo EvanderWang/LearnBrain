@@ -50,13 +50,7 @@ module module_main{
             reader.readAsText((<any>ev.target).files[0])
         });
 
-        window.addEventListener('keydown', (ev: KeyboardEvent) => {
-            if (ev.ctrlKey && ev.keyCode == 83) {
-                save();
-                ev.preventDefault();
-                return false;
-            }
-        });
+        
 
         // test use
         (<any>window).data = data.globalData;

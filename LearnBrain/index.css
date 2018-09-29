@@ -43,7 +43,7 @@ body {
 /*custom button*/
 .ql-omega:after {
     font-family: 'FontAwesomeSVG', 'FontAwesomeSVG2', 'FontAwesomeSVG3', 'FontAwesomeSVG4';
-    color: red;
+    /*color: red;*/
     content: '\f55d';
 }
 

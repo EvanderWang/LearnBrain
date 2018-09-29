@@ -60,12 +60,23 @@ module text {
             this.quill.format('size', '20px');
             this.quill.disable();
 
-            var customButton = document.querySelector('.ql-omega');
-            customButton.addEventListener('click', () => {
+            let doFormat = () => {
                 let length = this.quill.getLength();
                 this.quill.formatText(0, length, 'font', 'monaco');
                 this.quill.formatText(0, length, 'size', '20px');
+            };
+
+            var customButton = document.querySelector('.ql-omega');
+            customButton.addEventListener('click', doFormat);
+
+            window.addEventListener('keydown', (ev: KeyboardEvent) => {
+                if (ev.key == 'm' && ev.ctrlKey) {
+                    doFormat();
+                    ev.preventDefault();
+                    return false;
+                }
             });
+
 
             this.quill.on('text-change', (delta, oldDelta, source) => {
                 if (source == 'user') {
@@ -96,12 +107,15 @@ module text {
             }
 
             if (node) {
-                this.quill.enable();
                 if (node.textObject) {
                     this.quill.setContents(JSON.parse(node.textObject));
                 } else {
                     this.quill.setContents(JSON.parse('{"ops":[{"insert":"<' + node.name + '>\\n\\n\\n"}]}'));
                 }
+                this.quill.enable();
+                this.quill.focus();
+                let len = this.quill.getLength();
+                this.quill.setSelection(len);
             } else {
                 this.quill.disable();
                 this.quill.setContents();

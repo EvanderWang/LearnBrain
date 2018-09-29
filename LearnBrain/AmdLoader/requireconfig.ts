@@ -1,6 +1,7 @@
 ﻿requirejs.config({
     // baseUrl: basePath,
     paths: {
+        "jquery": "../Third/jquery/jquery.min",
         "react": "../Third/react/react.development",
         "react-dom": "../Third/react/react-dom.development",
         "tslib": "../Third/tslib/tslib",
