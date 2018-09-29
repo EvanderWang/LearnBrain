@@ -1,8 +1,34 @@
 ﻿declare var Quill: any;
 
 import { data } from "./VData";
+import { attrlistener } from "./VAttrListener";
 
 module text {
+    class VTooltipShownReceiver implements attrlistener.IVAttrChangeReceiver {
+        lastRange: { index: number, length: number } | null;
+
+        constructor(private tooltip: Element, private quill: any) {
+            this.quill.on('selection-change', (range, oldRange, source) => {
+                this.lastRange = range;
+            });
+        }
+
+        onchange(attrName: string, changedData: string) {
+            if (this.lastRange && changedData.indexOf("ql-hidden") == -1) {
+                let quill_editor = document.getElementById("quill_editor");
+                let quill_area = document.getElementById("quill_area");
+                let select_bounds = this.quill.getBounds(this.lastRange.index, 0);
+                let select_fixleft = quill_area.offsetLeft + quill_editor.offsetLeft + select_bounds.left;
+                let select_fixtop = quill_area.offsetTop + quill_editor.offsetTop + select_bounds.top;
+
+                let showposleft = select_fixleft - this.tooltip.clientWidth / 2;
+                let showpostop = select_fixtop + select_bounds.height;
+
+                this.tooltip.setAttribute("style", "position: fixed; z-index: 10;left: " + showposleft + "px; top: " + showpostop + "px");
+            }
+        }
+    }
+
     export class VText {
         quill: any;
         currentNode: data.VNode | null = null;
@@ -54,7 +80,11 @@ module text {
                 this.quill.theme.tooltip.edit('formula');
             });
 
+            // set quill tooltip manager
             //this.quill.enableMathQuillFormulaAuthoring();
+            let tooltip = document.getElementsByClassName("ql-tooltip")[0];
+            let receiver = new VTooltipShownReceiver(tooltip, this.quill);
+            let listener = new attrlistener.VAttrChangeListener(tooltip, "class", receiver);
 
             this.quill.format('font', 'monaco');
             this.quill.format('size', '20px');
@@ -76,7 +106,6 @@ module text {
                     return false;
                 }
             });
-
 
             this.quill.on('text-change', (delta, oldDelta, source) => {
                 if (source == 'user') {

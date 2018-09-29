@@ -64,6 +64,12 @@ body {
 }
 
 /*custom font size*/
+.mq-math-mode var {
+    font-family: 'KaTeX_Math';
+    font-size: 20px;
+    font-style: italic;
+}
+
 .ql-container {
     font-size: 20px;
 }

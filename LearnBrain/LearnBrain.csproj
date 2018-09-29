@@ -1635,6 +1635,7 @@
     <TypeScriptCompile Include="Src\nodes.tsx" />
     <TypeScriptCompile Include="Src\main.ts" />
     <TypeScriptCompile Include="Src\suggest.tsx" />
+    <TypeScriptCompile Include="Src\VAttrListener.ts" />
     <TypeScriptCompile Include="Src\VGraph.ts" />
     <TypeScriptCompile Include="Src\VData.ts" />
     <TypeScriptCompile Include="Src\VText.ts" />

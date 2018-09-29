@@ -24,8 +24,6 @@
   }
 
   function applyInputStyles(mqInput) {
-    mqInput.style.border = "1px solid #ccc";
-    mqInput.style.fontSize = "13px";
     mqInput.style.minHeight = "26px";
     mqInput.style.margin = "0px";
     mqInput.style.padding = "3px 5px";
