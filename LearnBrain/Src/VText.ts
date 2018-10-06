@@ -123,7 +123,15 @@ module text {
             this.quill.disable();
 
             this.quill.keyboard.addBinding({
-                key: 220,
+                key: 220, // BACK_SLASH
+                shortKey: true
+            }, (range, context) => {
+                fromButtonSwitcher.val = false;
+                this.quill.theme.tooltip.edit('formula');
+            });
+
+            this.quill.keyboard.addBinding({
+                key: 42, // MACOS BACK_SLASH
                 shortKey: true
             }, (range, context) => {
                 fromButtonSwitcher.val = false;
